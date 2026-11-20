@@ -1,6 +1,8 @@
 using Scalar.AspNetCore;
 using BiblioTech2.Api.Data;
 using Microsoft.EntityFrameworkCore;
+using BiblioTech2.Api.Services.Interfaces;
+using BiblioTech2.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);  // inicializa una nueva instancia, encargada de leer la configuración de la aplicación (appsettings.json, variables de entorno, etc.)
                                                    // y de configurar los servicios que la aplicación necesita para funcionar correctamente)
@@ -9,13 +11,16 @@ var builder = WebApplication.CreateBuilder(args);  // inicializa una nueva insta
 
 builder.Services.AddControllers(); // llama a la carpeta Controllers y registra todos los controladores que encuentre en ella, para que puedan ser utilizados por la aplicación
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi(); // scalar 
-
-var app = builder.Build(); // toma la configuracion y los servicios que de declararon posteriormente y construye la aplicación,
-                           // pasando al estado para recibir solicitudes HTTP y generar respuestas
 
 builder.Services.AddDbContext<BibliotecaContext>(opciones =>
 opciones.UseSqlServer(builder.Configuration.GetConnectionString("BiblioTechConnection")));
+
+builder.Services.AddOpenApi();// scalar 
+builder.Services.AddScoped<IAutorService, AutorService>();
+
+
+var app = builder.Build(); // toma la configuracion y los servicios que de declararon posteriormente y construye la aplicación,
+                           // pasando al estado para recibir solicitudes HTTP y generar respuestas
 // parte dos Pipeline de la aplicación, que se encarga de procesar las solicitudes HTTP entrantes y generar las respuestas correspondientes
 
 // Configure the HTTP request pipeline.
