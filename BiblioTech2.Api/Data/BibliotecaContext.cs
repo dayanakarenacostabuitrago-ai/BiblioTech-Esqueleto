@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using BiblioTech.Api.DTOs.Dashboard;
 using BiblioTech2.Api.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 
 namespace BiblioTech2.Api.Data;
 
@@ -119,6 +120,13 @@ public partial class BibliotecaContext : DbContext
         });
 
         OnModelCreatingPartial(modelBuilder);
+    }
+    public async Task<DashboardDto> ObtenerResumenDashboardAsync()
+    {
+        var filas = await Database
+            .SqlQuery<DashboardDto>($"EXEC dbo.sp_ResumenDashboard")
+            .ToListAsync();
+        return filas.Single();
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

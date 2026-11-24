@@ -23,8 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Constants\" />
-    <Folder Include="Configuracion\" />
     <Folder Include="Data\" />
     <Folder Include="Models\" />
   </ItemGroup>

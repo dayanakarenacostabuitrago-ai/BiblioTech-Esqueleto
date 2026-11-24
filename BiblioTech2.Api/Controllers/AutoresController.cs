@@ -3,44 +3,42 @@ using BiblioTech2.Api.Models;
 using BiblioTech2.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using BiblioTech2.Api.Respuestas;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace BiblioTech2.Api.Controllers;
 
-[ApiController]
+
 [Route("api/[controller]")]
-public class AutoresController(IAutorService servicio): ControllerBase
+public class AutoresController(IAutorService servicio): ApiControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<AutorDto>>> Listar()
-        => Ok(await servicio.ListarAsync());
+    public async Task<ActionResult<RespuestaApi<List<AutorDto>>>> Listar()
+        => Responder(await servicio.ListarAsync());
 
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<Autor>> obtener (int id)
-    {
-        var autor = await servicio.ObtenerAsync(id);
-        return autor is null ? NotFound() : Ok(autor);
-    }
+    public async Task<ActionResult<RespuestaApi<Autor>>> obtener(int id)
+                 => Responder(await servicio.ObtenerAsync(id));
+    
 
     [HttpPost]
-    public async Task<ActionResult<AutorDto>> Crear(AutorGuardadoDto dto)
+    public async Task<ActionResult<RespuestaApi<AutorDto>>> Crear(AutorGuardadoDto dto)
     {
-        var creado = await servicio.CrearAsync(dto);
-        return CreatedAtAction(nameof(obtener), new { id = creado.Id }, creado);
+        var resultado = await servicio.CrearAsync(dto);
+        if (!resultado.Exito)
+            return Responder(resultado);
+
+        return CreatedAtAction(nameof(obtener), new { id = resultado.Datos!.Id },
+            RespuestaApi<AutorDto>.Desde(resultado));
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Actualizar(int id, AutorGuardadoDto dto)
-    {
-        await servicio.ActualizarAsync(id, dto);
-        return NoContent();
-    }
-        
+    public async Task<ActionResult<RespuestaApi<object>>> Actualizar(int id, AutorGuardadoDto dto)
+      => Responder(await servicio.ActualizarAsync(id, dto));
+
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Eliminar(int id)
-    {
-        await servicio.EliminarAsync(id);
-        return NoContent();
-
-    }
+    [HttpDelete("{id:int}")]
+    public async Task<ActionResult<RespuestaApi<object>>> Eliminar(int id)
+     => Responder(await servicio.EliminarAsync(id));
 }
